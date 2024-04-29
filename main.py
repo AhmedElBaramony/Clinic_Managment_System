@@ -1,7 +1,7 @@
 from GUI import *
 
 
-editPrescriptionPage.show_page()
+loginPage.show_page()
 
 
 root.mainloop()

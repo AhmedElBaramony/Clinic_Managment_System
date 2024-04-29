@@ -843,58 +843,74 @@ class ViewPatientPage:
         receptionistPage.show_page()
 
 
-class EditPrescriptionPage:
-    def __init__(self):
-        self.content = tk.Frame(root)
-        self.form = tk.Frame(self.content)
-        ttk.Label(self.form, text="Prescription", font=("calibre", 20)).pack(pady=20)
-
-        # Diagnosis Entry
-        self.diagnosisFrame = tk.Frame(self.form)
-        ttk.Label(self.diagnosisFrame, text="Diagnosis: ", font=("calibre", 10, "bold")).pack(side="left", padx=20)
-        self.diagnosisEntry = ttk.Entry(self.diagnosisFrame)
-        self.diagnosisEntry.pack(side="right", padx=20)
-        self.diagnosisFrame.pack(fill="both", expand=True, padx=20, pady=5)
-
-        # Medication Details
-        self.medicationFrame = tk.Frame(self.form)
-        ttk.Label(self.medicationFrame, text="Medication", font=("calibre", 18)).pack(pady=10)
-
-        self.entries = {}
-        fields = ["Name", "Dosage", "Frequency", "Duration"]
-        for field in fields:
-            frame = tk.Frame(self.medicationFrame)
-            ttk.Label(frame, text=f"{field}: ", font=("calibre", 10, "bold")).pack(side="left", padx=20)
-            entry = ttk.Entry(frame)
-            entry.pack(side="right", padx=20)
-            self.entries[field] = entry
-            frame.pack(fill="both", expand=True, padx=20, pady=5)
-
-        # Add and Submit Buttons
-        self.btnsFrame = ttk.Frame(self.content)
-        self.addBtn = ttk.Button(self.btnsFrame, text="Add", command=self.add_medication)
-        self.addBtn.pack(side="left", padx=30, pady=10)
-        self.submitBtn = ttk.Button(self.btnsFrame, text="Submit", command=self.submit_prescription)
-        self.submitBtn.pack(side="left", padx=30, pady=10)
-
-        self.medicationFrame.pack()
-        self.form.pack()
-        self.btnsFrame.pack()
-
-    def add_medication(self):
-        # Function to add medication to the list (not implemented here)
-        pass
-
-    def submit_prescription(self):
-        # Function to handle the submission of the prescription (not implemented here)
-        pass
-
-    def show_page(self):
-        self.content.pack(expand=True, fill='both')
 
 class ViewPrescriptionPage:
     def __init__(self):
-        pass
+        self.content = tk.Frame(root)
+        self.form = tk.Frame(self.content)
+        ttk.Label(self.form, text="View Prescription", font=("calibre", 20)).pack(pady=20)
+
+        # Diagnosis Display
+        self.diagnosisFrame = tk.Frame(self.form)
+        ttk.Label(self.diagnosisFrame, text="Diagnosis: ", font=("calibre", 10, "bold")).pack(side="left", padx=20)
+        self.diagnosisVar = tk.StringVar()
+        ttk.Label(self.diagnosisFrame, textvariable=self.diagnosisVar, font=("calibre", 10)).pack(side="right", padx=20)
+        self.diagnosisFrame.pack(fill="x", expand=True, padx=20, pady=5)
+
+
+        # Medications Treeview
+        self.medicationFrame = tk.Frame(self.form)
+        ttk.Label(self.medicationFrame, text="Medications", font=("calibre", 18)).pack(pady=10)
+
+        # Define the columns
+        self.columns = ("Name", "Dosage", "Frequency", "Duration")
+        self.medicationTreeview = ttk.Treeview(self.medicationFrame, columns=self.columns, show="headings")
+        for col in self.columns:
+            self.medicationTreeview.heading(col, text=col)
+            self.medicationTreeview.column(col, width=100)
+
+        # Add a scrollbar
+        self.treeviewScrollbar = ttk.Scrollbar(self.medicationFrame, orient="vertical",
+                                               command=self.medicationTreeview.yview)
+        self.medicationTreeview.configure(yscrollcommand=self.treeviewScrollbar.set)
+        self.treeviewScrollbar.pack(side="right", fill="y")
+        self.medicationTreeview.pack(side="left", fill="both", expand=True)
+
+        self.medicationFrame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        self.backBtn = ttk.Button(self.content, text="Back", command=self.back)
+        self.backBtn.pack(pady=10)
+
+        self.form.pack(pady=10)
+
+    def back(self):
+        self.content.pack_forget()
+        viewDoctorAppointmentPage.show_page()
+
+
+    def show_page(self):
+        self.content.pack()
+
+        for item in self.medicationTreeview.get_children():
+            self.medicationTreeview.delete(item)
+
+        try:
+            prescription = execute_procedure(cursor, f'GetPrescriptionByAppointID {appointId}')[0]
+            presId = prescription[0]
+            diagnosis = prescription[1]
+            medications = execute_procedure(cursor, f'GetMedicationByPrescriptionID {presId}')
+
+            # Set diagnosis
+            self.diagnosisVar.set(diagnosis)
+
+            # Add medications to listbox
+            for med in medications:
+                self.medicationTreeview.insert("", "end",
+                                               values=(med[1], med[2], med[4], med[3]))
+
+        except Exception:
+            messagebox.showinfo('Error', "Unexpected Error!")
+
 
 
 # '------------------------- Doctor Services -------------------------'
@@ -903,6 +919,9 @@ class ViewPrescriptionPage:
 class DoctorPage:
     def __init__(self):
         self.content = tk.Frame(root)
+
+    def show_page(self):
+        self.content.pack(expand=True, fill='both')
         self.nameLabel = ttk.Label(self.content, text="Doctor page")
         self.nameLabel.pack()
 
@@ -914,8 +933,6 @@ class DoctorPage:
         self.viewPayrollBtn.pack(pady=10)
         self.backBtn.pack(pady=10)
 
-    def show_page(self):
-        self.content.pack()
 
     def viewAppointments(self):
         self.content.pack_forget()
@@ -931,7 +948,6 @@ class DoctorPage:
 
 
 class DoctorViewAppointment:
-
     def __init__(self):
 
         # Page Title
@@ -950,6 +966,8 @@ class DoctorViewAppointment:
             self.appointmentsTreeView.column(col, width=100)
         self.appointmentsTreeView.pack(fill='both', expand=True ,pady=30)
 
+        self.appointmentsTreeView.bind("<<TreeviewSelect>>", self.on_select)
+
         # Buttons Frame
 
         self.btnsFrame = tk.Frame(self.content)
@@ -965,6 +983,11 @@ class DoctorViewAppointment:
         # Pack Frames
         self.appointmentsFrame.pack()
         self.btnsFrame.pack()
+
+    def on_select(self, event):
+        global appointId
+        selected = self.appointmentsTreeView.selection()[0]
+        appointId = self.appointmentsTreeView.item(selected)['values'][0]
 
     def show_page(self):
         self.content.pack()
@@ -989,11 +1012,96 @@ class DoctorViewAppointment:
         doctorPage.show_page()
 
     def view_presc(self):
-        # Open a window of prescription
-        pass
+        self.content.pack_forget()
+        viewPrescriptionPage.show_page()
 
     def edit_presc(self):
-        pass
+        self.content.pack_forget()
+        editPrescriptionPage.show_page()
+
+
+class EditPrescriptionPage:
+    def __init__(self):
+        self.content = tk.Frame(root)
+        self.form = tk.Frame(self.content)
+        ttk.Label(self.form, text="Edit Prescription", font=("calibre", 20)).pack(pady=20)
+
+        # Diagnosis Entry
+        self.diagnosisFrame = tk.Frame(self.form)
+        ttk.Label(self.diagnosisFrame, text="Diagnosis: ", font=("calibre", 10, "bold")).pack(side="left", padx=20)
+        self.diagnosisEntry = ttk.Entry(self.diagnosisFrame)
+        self.diagnosisEntry.pack(side="right", padx=20)
+        self.diagnosisFrame.pack(fill="x", expand=True, padx=20, pady=5)
+
+        # Medication List
+        self.medications = []
+
+        # Medication Details
+        self.medicationFrame = tk.Frame(self.form)
+        ttk.Label(self.medicationFrame, text="Medication", font=("calibre", 18)).pack(pady=10)
+        self.medicationEntries = {}
+        fields = ["Name", "Dosage", "Frequency", "Duration"]
+        for field in fields:
+            frame = tk.Frame(self.medicationFrame)
+            ttk.Label(frame, text=f"{field}: ", font=("calibre", 10, "bold")).pack(side="left", padx=20)
+            entry = ttk.Entry(frame)
+            entry.pack(side="right", padx=20)
+            self.medicationEntries[field] = entry
+            frame.pack(fill="x", expand=True, padx=20, pady=5)
+
+        # Add Medication Button
+        self.addMedicationBtn = ttk.Button(self.medicationFrame, text="Add Medication", command=self.add_medication)
+        self.addMedicationBtn.pack(pady=10)
+
+        self.medicationFrame.pack(pady=20)
+
+        # Medications Listbox
+        self.medicationListLabel = ttk.Label(self.form, text="Medications List", font=("calibre", 10, "bold"))
+        self.medicationListLabel.pack(pady=10)
+        self.medicationListBox = tk.Listbox(self.form, width=50)
+        self.medicationListBox.pack(pady=10)
+
+        # Submit Button
+        self.submitBtn = ttk.Button(self.content, text="Submit Prescription", command=self.submit_prescription)
+        self.submitBtn.pack(pady=10)
+
+        self.form.pack(pady=10)
+
+    def show_page(self):
+        self.content.pack()
+
+    def add_medication(self):
+        # Retrieve the medication details from the entries
+        medication = {field: self.medicationEntries[field].get() for field in self.medicationEntries}
+        # Add the medication to the medications list
+        self.medications.append(medication)
+        # Clear the entries
+        for entry in self.medicationEntries.values():
+            entry.delete(0, tk.END)
+        # Update the Listbox
+        self.medicationListBox.insert(tk.END, medication["Name"])
+
+    def submit_prescription(self):
+        diagnosis = self.diagnosisEntry.get()
+        # Here you would handle the prescription submission, for example, sending it to a database
+        print(f"Diagnosis: {diagnosis}")
+        for medication in self.medications:
+            print(f"Medication: {medication}")
+
+        try:
+            execute_insert_procedure(cursor,conn,f'prescription_add \'{diagnosis}\',{appointId}')
+            presId = execute_procedure(cursor, f'GetPrescriptionByAppointID {appointId}')[0][0]
+
+            for i in range(len(self.medications)):
+                execute_insert_procedure(cursor,conn, f'medication_add {self.medications[i]['Duration']},{self.medications[i]['Frequency']}, '
+                                          f'\'{self.medications[i]['Name']}\',{self.medications[i]['Dosage']},{presId}')
+        except Exception:
+            messagebox.showinfo('Error', "Please enter valid data!")
+
+        # Clear the form
+        self.diagnosisEntry.delete(0, tk.END)
+        self.medications.clear()
+        self.medicationListBox.delete(0, tk.END)
 
 #Logic Done
 class ViewPayrollPage:
@@ -1123,6 +1231,7 @@ doctorPage = DoctorPage()
 viewPayrollPage = ViewPayrollPage()
 viewDoctorAppointmentPage = DoctorViewAppointment()
 editPrescriptionPage = EditPrescriptionPage()
+viewPrescriptionPage = ViewPrescriptionPage()
 
 # Patient Landing Page
 viewPatientAppointmentPage = PatientViewAppointment()
@@ -1131,3 +1240,4 @@ viewPatientAppointmentPage = PatientViewAppointment()
 doctorId = -1
 patientId = -1
 receptionistId = -1
+appointId = -1
