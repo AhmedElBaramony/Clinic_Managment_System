@@ -99,15 +99,15 @@ class LoginPage:
 class ReceptionistPage:
     def __init__(self):
         self.content = tk.Frame(root)
-        self.nameLabel = ttk.Label(self.content, text='Receptionist page')
+        self.nameLabel = ttk.Label(self.content, text='Receptionist Page')
         self.nameLabel.pack()
 
         self.reserveAppointmentsBtn = ttk.Button(self.content, text="Reserve Appointment", command=self.reserve)
-        self.addDoctorBtn = ttk.Button(self.content, text="Add a doctor", command=self.addDoctor)
-        self.viewDoctorBtn = ttk.Button(self.content, text="view a doctor", command=self.viewDoctor)
-        self.addPatientBtn = ttk.Button(self.content, text="Add a patient", command=self.addPatient)
-        self.viewPatientBtn = ttk.Button(self.content, text="View a patient", command=self.viewPatient)
-        self.updatePayrollBtn = ttk.Button(self.content, text="Update payroll", command=self.updatePayroll)
+        self.addDoctorBtn = ttk.Button(self.content, text="Add A Doctor", command=self.addDoctor)
+        self.viewDoctorBtn = ttk.Button(self.content, text="View A Doctor", command=self.viewDoctor)
+        self.addPatientBtn = ttk.Button(self.content, text="Add A Patient", command=self.addPatient)
+        self.viewPatientBtn = ttk.Button(self.content, text="View A Patient", command=self.viewPatient)
+        self.updatePayrollBtn = ttk.Button(self.content, text="Update Payroll", command=self.updatePayroll)
         self.backBtn = ttk.Button(self.content, text="Back", command=self.back)
 
         self.reserveAppointmentsBtn.pack(pady=10)
