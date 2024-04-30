@@ -3,11 +3,12 @@ import ttkbootstrap as ttk
 from DB_Manager import *
 from tkinter import messagebox
 
+# Database Connection
 cursor, conn = connect_to_database('SQL Server', 'AHMEDEL-BARAMON', 'Clinic_Management_System')
 
 DIMENSIONS = '1000x800'
 
-#Logic Done
+
 class LoginPage:
     def __init__(self):
         self.usernameVar = tk.StringVar()
@@ -94,8 +95,7 @@ class LoginPage:
             messagebox.showinfo("Error","Invalid Credentials!")
 
 
-# '------------------------- Receptionist Services -------------------------'
-#Logic Done
+# ------------------------- Receptionist "ADMIN" Services -------------------------
 class ReceptionistPage:
     def __init__(self):
         self.content = tk.Frame(root)
@@ -149,7 +149,7 @@ class ReceptionistPage:
         self.content.pack_forget()
         loginPage.show_page()
 
-#Logic Done
+
 class AddDoctorPage:
     def __init__(self):
 
@@ -217,7 +217,7 @@ class AddDoctorPage:
         self.content.pack_forget()
         receptionistPage.show_page()
 
-#Logic Done
+
 class AddPatientPage:
 
     def __init__(self):
@@ -281,7 +281,7 @@ class AddPatientPage:
         self.content.pack_forget()
         receptionistPage.show_page()
 
-#Logic Done
+
 class ReserveAppointmentPage:
     def __init__(self):
         # Content Frame
@@ -372,7 +372,7 @@ class ReserveAppointmentPage:
         self.content.pack_forget()
         receptionistPage.show_page()
 
-#Logic Done
+
 class UpdatePayrollPage:
     def __init__(self):
         self.docId = -1
@@ -447,7 +447,6 @@ class UpdatePayrollPage:
         receptionistPage.show_page()
 
 
-#Logic Done
 class ViewDoctorPage:
     def __init__(self):
         self.content = tk.Frame(root)
@@ -827,7 +826,6 @@ class ViewPatientPage:
         receptionistPage.show_page()
 
 
-
 class ViewPrescriptionPage:
     def __init__(self):
         self.content = tk.Frame(root)
@@ -896,10 +894,7 @@ class ViewPrescriptionPage:
             messagebox.showinfo('Error', "Unexpected Error!")
 
 
-
-# '------------------------- Doctor Services -------------------------'
-
-#Logic Done
+# ------------------------- Doctor Services -------------------------
 class DoctorPage:
     def __init__(self):
         self.content = tk.Frame(root)
@@ -1095,7 +1090,7 @@ class EditPrescriptionPage:
         self.medications.clear()
         self.medicationListBox.delete(0, tk.END)
 
-#Logic Done
+
 class ViewPayrollPage:
     def __init__(self):
         self.content = tk.Frame(root)
@@ -1136,7 +1131,7 @@ class ViewPayrollPage:
         doctorPage.show_page()
 
 
-# '------------------------- Patient Services -------------------------'
+# ------------------------- Patient Services -------------------------
 class PatientViewAppointment:
 
     def __init__(self):
@@ -1273,7 +1268,7 @@ class PatientViewPrescriptionPage:
         except Exception:
             messagebox.showinfo('Error', "Unexpected Error!")
 
-# '------------------------- GUI Window-------------------------'
+# ------------------------- GUI Window Formatting -------------------------
 
 root = ttk.Window(themename='darkly')
 root.title("Clinical Management System")
@@ -1302,7 +1297,7 @@ viewPrescriptionPage = ViewPrescriptionPage()
 viewPatientAppointmentPage = PatientViewAppointment()
 viewPatientPrescriptionPage = PatientViewPrescriptionPage()
 
-# Essential Variables
+# Essential Global Variables
 doctorId = -1
 patientId = -1
 receptionistId = -1

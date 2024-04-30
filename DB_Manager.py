@@ -1,6 +1,7 @@
 import pypyodbc as odbc
 from datetime import datetime
 
+
 def calculate_age(birth_date_str):
 
     # Parse the birthdate string into a datetime object
@@ -13,6 +14,7 @@ def calculate_age(birth_date_str):
     age = current_date.year - birth_date.year - ((current_date.month, current_date.day) < (birth_date.month, birth_date.day))
 
     return age
+
 
 def connect_to_database(driver, server, database):
     connection_string = f'''
@@ -37,8 +39,7 @@ def execute_procedure(cursor, procedure):
     rows = cursor.fetchall()
     return rows
 
+
 def execute_insert_procedure(cursor, conn, procedure):
     cursor.execute(procedure)
     conn.commit()
-
-#cursor, conn = connect_to_database('SQL Server', 'LAPTOP-QQTU5VR3\\MSSQLSERVER22', 'Clinical_Management_System')
