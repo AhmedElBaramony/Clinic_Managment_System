@@ -374,7 +374,7 @@ class ReserveAppointmentPage:
 
 #Logic Done
 class UpdatePayrollPage:
-    def _init_(self):
+    def __init__(self):
         self.docId = -1
         self.content = tk.Frame(root)
         ttk.Label(self.content, text="View Payroll", font="Calibre 40").pack()
@@ -436,19 +436,11 @@ class UpdatePayrollPage:
     def insert(self):
         salary = self.salaryVar.get()
         workingHrs = self.workingHrsVar.get()
-        payrollId = execute_procedure(cursor, f'GetDoctorByID {self.docId}')[0][11]
-        if payrollId:
-            try:
-                execute_insert_procedure(cursor, conn, f'add_payroll {self.docId}, {workingHrs}, {salary}')
-                messagebox.showinfo("Info", "Payroll Updated successfully!")
-            except Exception:
-                messagebox.showinfo("Error", "Please Enter Valid data!")
-        else:
-            try:
-                execute_insert_procedure(cursor, conn, f'add_new_payroll {self.docId}, {workingHrs}, {salary}')
-                messagebox.showinfo("Info", "Payroll added successfully!")
-            except Exception:
-                messagebox.showinfo("Error", "Please Enter Valid data!")
+        try:
+            execute_insert_procedure(cursor, conn, f'add_payroll {self.docId}, {workingHrs}, {salary}')
+            messagebox.showinfo("Info", "Payroll added successfully!")
+        except Exception:
+            messagebox.showinfo("Error", "Please Enter Valid data!")
 
     def back(self):
         self.content.pack_forget()
@@ -578,7 +570,6 @@ class ViewDoctorPage:
 
         # Buttons Frame
         self.btnsFrame = tk.Frame(self.content)
-        self.viewPrescriptionBtn = ttk.Button(self.btnsFrame, text="View Prescription", command=self.view_presc)
         self.backBtn = ttk.Button(self.btnsFrame, text="Back", command=self.back)
         self.backBtn.pack(side='right')
 
@@ -609,7 +600,6 @@ class ViewDoctorPage:
                 self.btnsFrame.pack_forget()
                 self.detailsFrame.pack(fill='both', expand=True)
                 self.appointmentsFrame.pack(fill='both', expand=True, pady=30)
-                self.viewPrescriptionBtn.pack(side='right', padx=300)
                 self.btnsFrame.pack(fill='both', expand=True, padx=100, pady=10)
                 print(docId)
 
@@ -634,12 +624,10 @@ class ViewDoctorPage:
             else:
                 self.detailsFrame.pack_forget()
                 self.appointmentsFrame.pack_forget()
-                self.viewPrescriptionBtn.pack_forget()
                 messagebox.showinfo("Error", "Please Enter a Valid ID!")
         except Exception:
             self.detailsFrame.pack_forget()
             self.appointmentsFrame.pack_forget()
-            self.viewPrescriptionBtn.pack_forget()
             messagebox.showinfo("Error", "Please Enter a Valid ID!")
 
     def on_select(self, event):
@@ -767,7 +755,6 @@ class ViewPatientPage:
 
         # Buttons Frame
         self.btnsFrame = tk.Frame(self.content)
-        self.viewPrescriptionBtn = ttk.Button(self.btnsFrame, text="View Prescription", command=self.view_presc)
         self.backBtn = ttk.Button(self.btnsFrame, text="Back", command=self.back)
         self.backBtn.pack(side='right')
 
@@ -797,7 +784,6 @@ class ViewPatientPage:
                 self.btnsFrame.pack_forget()
                 self.detailsFrame.pack(fill='both', expand=True)
                 self.appointmentsFrame.pack(fill='both', expand=True, pady=30)
-                self.viewPrescriptionBtn.pack(side='right', padx=300)
                 self.btnsFrame.pack(fill='both', expand=True, padx=100, pady=10)
                 print(patId)
 
@@ -821,12 +807,10 @@ class ViewPatientPage:
             else:
                 self.detailsFrame.pack_forget()
                 self.appointmentsFrame.pack_forget()
-                self.viewPrescriptionBtn.pack_forget()
                 messagebox.showinfo("Error", "Please Enter a Valid ID!")
         except Exception:
             self.detailsFrame.pack_forget()
             self.appointmentsFrame.pack_forget()
-            self.viewPrescriptionBtn.pack_forget()
             messagebox.showinfo("Error", "Please Enter a Valid ID!")
 
     def on_select(self, event):
@@ -879,7 +863,7 @@ class ViewPrescriptionPage:
         self.medicationFrame.pack(fill="both", expand=True, padx=20, pady=20)
 
         self.backBtn = ttk.Button(self.content, text="Back", command=self.back)
-        self.backBtn.pack(pady=10)
+        self.backBtn.pack(side='bottom',pady=10)
 
         self.form.pack(pady=10)
 
@@ -919,9 +903,6 @@ class ViewPrescriptionPage:
 class DoctorPage:
     def __init__(self):
         self.content = tk.Frame(root)
-
-    def show_page(self):
-        self.content.pack(expand=True, fill='both')
         self.nameLabel = ttk.Label(self.content, text="Doctor page")
         self.nameLabel.pack()
 
@@ -932,6 +913,9 @@ class DoctorPage:
         self.viewAppointmentsBtn.pack(pady=10)
         self.viewPayrollBtn.pack(pady=10)
         self.backBtn.pack(pady=10)
+
+    def show_page(self):
+        self.content.pack(expand=True, fill='both')
 
 
     def viewAppointments(self):
@@ -958,7 +942,7 @@ class DoctorViewAppointment:
         # Appointment Tree
 
         self.appointmentsFrame = tk.Frame(self.content)
-        columns = ('Appointment ID', 'Date', 'Doctor', 'Patient', 'Amount')
+        columns = ('Appointment ID', 'Date', 'Patient', 'Diagnosis', 'Amount')
         self.appointmentsTreeView = ttk.Treeview(self.appointmentsFrame, columns=columns)
         for i, col in enumerate(columns):
             self.appointmentsTreeView.heading(col, text=col, anchor='w')
@@ -1026,6 +1010,8 @@ class EditPrescriptionPage:
         self.form = tk.Frame(self.content)
         ttk.Label(self.form, text="Edit Prescription", font=("calibre", 20)).pack(pady=20)
 
+
+
         # Diagnosis Entry
         self.diagnosisFrame = tk.Frame(self.form)
         ttk.Label(self.diagnosisFrame, text="Diagnosis: ", font=("calibre", 10, "bold")).pack(side="left", padx=20)
@@ -1061,11 +1047,17 @@ class EditPrescriptionPage:
         self.medicationListBox = tk.Listbox(self.form, width=50)
         self.medicationListBox.pack(pady=10)
 
-        # Submit Button
+        # Buttons
+        self.backBtn = ttk.Button(self.content, text="Back", command=self.back)
+        self.backBtn.pack(side='bottom', pady=10)
         self.submitBtn = ttk.Button(self.content, text="Submit Prescription", command=self.submit_prescription)
-        self.submitBtn.pack(pady=10)
+        self.submitBtn.pack(side='bottom',pady=10)
 
         self.form.pack(pady=10)
+
+    def back(self):
+        self.content.pack_forget()
+        viewDoctorAppointmentPage.show_page()
 
     def show_page(self):
         self.content.pack()
@@ -1165,6 +1157,8 @@ class PatientViewAppointment:
             self.appointmentsTreeView.column(col, width=100)
         self.appointmentsTreeView.pack(fill='both', expand=True ,pady=30)
 
+        self.appointmentsTreeView.bind("<<TreeviewSelect>>", self.on_select)
+
         # Buttons Frame
 
         self.btnsFrame = tk.Frame(self.content)
@@ -1175,17 +1169,21 @@ class PatientViewAppointment:
         self.viewPrescriptionBtn.pack(side='left', padx=30)
         self.backBtn.pack(side='left', padx=30)
 
-
-
-
         # Pack Frames
         self.appointmentsFrame.pack()
         self.btnsFrame.pack()
+
+    def on_select(self, event):
+        global appointId
+        selected = self.appointmentsTreeView.selection()[0]
+        appointId = self.appointmentsTreeView.item(selected)['values'][0]
+
 
     def show_page(self):
         self.content.pack()
         try:
             appointments = execute_procedure(cursor, f'Patient_view {patientId}')
+            self.appointmentsFrame.pack(fill='both', expand=True, pady=30)
 
             for item in self.appointmentsTreeView.get_children():
                 self.appointmentsTreeView.delete(item)
@@ -1204,9 +1202,76 @@ class PatientViewAppointment:
         loginPage.show_page()
 
     def view_presc(self):
-        # Open a window of prescription
-        pass
+        self.content.pack_forget()
+        viewPatientPrescriptionPage.show_page()
 
+
+class PatientViewPrescriptionPage:
+    def __init__(self):
+        self.content = tk.Frame(root)
+        self.form = tk.Frame(self.content)
+        ttk.Label(self.form, text="View Prescription", font=("calibre", 20)).pack(pady=20)
+
+        # Diagnosis Display
+        self.diagnosisFrame = tk.Frame(self.form)
+        ttk.Label(self.diagnosisFrame, text="Diagnosis: ", font=("calibre", 10, "bold")).pack(side="left", padx=20)
+        self.diagnosisVar = tk.StringVar()
+        ttk.Label(self.diagnosisFrame, textvariable=self.diagnosisVar, font=("calibre", 10)).pack(side="right", padx=20)
+        self.diagnosisFrame.pack(fill="x", expand=True, padx=20, pady=5)
+
+
+        # Medications Treeview
+        self.medicationFrame = tk.Frame(self.form)
+        ttk.Label(self.medicationFrame, text="Medications", font=("calibre", 18)).pack(pady=10)
+
+        # Define the columns
+        self.columns = ("Name", "Dosage", "Frequency", "Duration")
+        self.medicationTreeview = ttk.Treeview(self.medicationFrame, columns=self.columns, show="headings")
+        for col in self.columns:
+            self.medicationTreeview.heading(col, text=col)
+            self.medicationTreeview.column(col, width=100)
+
+        # Add a scrollbar
+        self.treeviewScrollbar = ttk.Scrollbar(self.medicationFrame, orient="vertical",
+                                               command=self.medicationTreeview.yview)
+        self.medicationTreeview.configure(yscrollcommand=self.treeviewScrollbar.set)
+        self.treeviewScrollbar.pack(side="right", fill="y")
+        self.medicationTreeview.pack(side="left", fill="both", expand=True)
+
+        self.medicationFrame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        self.backBtn = ttk.Button(self.content, text="Back", command=self.back)
+        self.backBtn.pack(side='bottom',pady=10)
+
+        self.form.pack(pady=10)
+
+    def back(self):
+        self.content.pack_forget()
+        viewPatientAppointmentPage.show_page()
+
+
+    def show_page(self):
+        self.content.pack()
+
+        for item in self.medicationTreeview.get_children():
+            self.medicationTreeview.delete(item)
+
+        try:
+            prescription = execute_procedure(cursor, f'GetPrescriptionByAppointID {appointId}')[0]
+            presId = prescription[0]
+            diagnosis = prescription[1]
+            medications = execute_procedure(cursor, f'GetMedicationByPrescriptionID {presId}')
+
+            # Set diagnosis
+            self.diagnosisVar.set(diagnosis)
+
+            # Add medications to listbox
+            for med in medications:
+                self.medicationTreeview.insert("", "end",
+                                               values=(med[1], med[2], med[4], med[3]))
+
+        except Exception:
+            messagebox.showinfo('Error', "Unexpected Error!")
 
 # '------------------------- GUI Window-------------------------'
 
@@ -1235,6 +1300,7 @@ viewPrescriptionPage = ViewPrescriptionPage()
 
 # Patient Landing Page
 viewPatientAppointmentPage = PatientViewAppointment()
+viewPatientPrescriptionPage = PatientViewPrescriptionPage()
 
 # Essential Variables
 doctorId = -1
