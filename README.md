@@ -16,7 +16,7 @@ Get started with our system in no time by following these steps:
 
 1. **Clone The Repository:**
    ```bash
-   git clone https://github.com/yourusername/clinic-management-system.git
+   git clone https://github.com/AhmedElBaramony/Clinic_Managment_System.git
 
 2. **Install Dependencies:**
    ```bash
